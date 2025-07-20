@@ -21,6 +21,7 @@ local petTable = {
     ["Paradise Egg"] = { "Ostrich", "Peacock", "Capybara" },
     ["Dinosaur Egg"] = { "Raptor", "Triceratops", "Stegosaurus" },
     ["Primal Egg"] = { "Parasaurolophus", "Iguanodon", "Pachycephalosaurus" },
+    ["Zen Egg"] = { "Shiba Inu", "Nihonzaru", "Tanuki" },
 }
 
 local espEnabled = true
@@ -247,7 +248,7 @@ local autoRunning = false
 local bestPets = {
     ["Raccoon"] = true, ["Dragonfly"] = true, ["Queen Bee"] = true,
     ["Disco Bee"] = true, ["Fennec Fox"] = true, ["Fox"] = true,
-    ["Mimic Octopus"] = true
+    ["Mimic Octopus"] = true, ["Kitsune"] = true
 }
 
 autoBtn.MouseButton1Click:Connect(function()
@@ -279,7 +280,7 @@ loadAgeBtn.Font = Enum.Font.FredokaOne
 loadAgeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 loadAgeBtn.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/munkizzzz/x/refs/heads/main/Egg_RandomizerV2.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GrowAGardenVisual1/EggPredictor/refs/heads/main/Egg-Randomizer.lua"))()
 end)
 
 -- 👤 Credit
@@ -287,7 +288,7 @@ local credit = Instance.new("TextLabel", frame)
 credit.Size = UDim2.new(1, 0, 0, 20)
 credit.Position = UDim2.new(0, 0, 0, 22)
 credit.BackgroundTransparency = 1
-credit.Text = "Made by - munkizzz"
+credit.Text = "Made by - Zen"
 credit.Font = Enum.Font.FredokaOne
 credit.TextSize = 14
 credit.TextColor3 = Color3.fromRGB(200, 200, 200)
