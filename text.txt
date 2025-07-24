@@ -1,3 +1,4 @@
+
 -- Visual pet hatch simulator with drag, ESP, auto random, pet age loader
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -268,6 +269,22 @@ autoBtn.MouseButton1Click:Connect(function()
         end
     end)()
 end)
+
+-- ✨ New Pet Mutation Finder Button
+local newScriptBtn = Instance.new("TextButton", frame)
+newScriptBtn.Size = UDim2.new(1, -20, 0, 30)
+newScriptBtn.Position = UDim2.new(0, 10, 1, -70) -- adjust Y offset as needed
+newScriptBtn.BackgroundColor3 = Color3.fromRGB(120, 60, 180)
+newScriptBtn.Text = "💀 Pet Mutation Finder"
+newScriptBtn.TextSize = 16
+newScriptBtn.Font = Enum.Font.FredokaOne
+newScriptBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+newScriptBtn.Parent = frame
+
+newScriptBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GrowAGardenVisual1/EggPredictor/refs/heads/main/PetMutationReal"))()
+end)
+
 
 -- ✨ Cool Load Pet Age Script Button
 local loadAgeBtn = Instance.new("TextButton", frame)
