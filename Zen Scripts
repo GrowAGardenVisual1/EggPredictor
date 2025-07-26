@@ -1,0 +1,169 @@
+-- Services
+local UserInputService = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+
+-- Screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Zen Scripts"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 360, 0, 340)
+mainFrame.Position = UDim2.new(0.5, -180, 0.5, -170)
+mainFrame.BackgroundColor3 = Color3.fromRGB(128, 0, 0)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner", mainFrame)
+mainCorner.CornerRadius = UDim.new(0, 10)
+
+local mainStroke = Instance.new("UIStroke", mainFrame)
+mainStroke.Thickness = 2
+mainStroke.Color = Color3.fromRGB(180, 0, 0)
+mainStroke.Transparency = 0.4
+mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Title Label
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 0, 40)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "🌟 Zen Scripts"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = mainFrame
+
+local titleStroke = Instance.new("UIStroke", title)
+titleStroke.Thickness = 1
+titleStroke.Color = Color3.fromRGB(200, 0, 0)
+titleStroke.Transparency = 0.6
+
+-- Close Button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Text = "X"
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
+closeBtn.Parent = mainFrame
+
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+
+local closeStroke = Instance.new("UIStroke", closeBtn)
+closeStroke.Thickness = 1.5
+closeStroke.Color = Color3.fromRGB(180, 0, 0)
+closeStroke.Transparency = 0.3
+
+closeBtn.MouseButton1Click:Connect(function()
+	screenGui.Enabled = false
+end)
+
+-- Minimize Button
+local minimizeBtn = Instance.new("TextButton")
+minimizeBtn.Text = "-"
+minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
+minimizeBtn.Position = UDim2.new(1, -70, 0, 5)
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(128, 0, 0)
+minimizeBtn.TextColor3 = Color3.new(1, 1, 1)
+minimizeBtn.Font = Enum.Font.GothamBold
+minimizeBtn.TextSize = 14
+minimizeBtn.Parent = mainFrame
+
+Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(0, 6)
+
+local minimizeStroke = Instance.new("UIStroke", minimizeBtn)
+minimizeStroke.Thickness = 1.5
+minimizeStroke.Color = Color3.fromRGB(180, 0, 0)
+minimizeStroke.Transparency = 0.3
+
+-- Button Holder
+local buttonHolder = Instance.new("Frame")
+buttonHolder.Size = UDim2.new(1, -20, 1, -60)
+buttonHolder.Position = UDim2.new(0, 10, 0, 50)
+buttonHolder.BackgroundTransparency = 1
+buttonHolder.Parent = mainFrame
+
+local layout = Instance.new("UIListLayout", buttonHolder)
+layout.Padding = UDim.new(0, 10)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Toggle Minimize
+local minimized = false
+minimizeBtn.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	buttonHolder.Visible = not minimized
+	mainFrame.Size = minimized and UDim2.new(0, 360, 0, 60) or UDim2.new(0, 360, 0, 340)
+end)
+
+-- Toggle UI with RightShift
+UserInputService.InputBegan:Connect(function(input, gp)
+	if gp then return end
+	if input.KeyCode == Enum.KeyCode.RightShift then
+		screenGui.Enabled = not screenGui.Enabled
+	end
+end)
+
+-- Mobile Drag Support
+local dragging, dragStart, startPos
+mainFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+-- Button Creation Function
+local function createButton(name, url)
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, 0, 0, 40)
+	button.BackgroundColor3 = Color3.fromRGB(90, 0, 0)
+	button.Text = name
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Font = Enum.Font.GothamBold
+	button.TextSize = 16
+	button.Parent = buttonHolder
+
+	Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+
+	local glow = Instance.new("UIStroke", button)
+	glow.Thickness = 1.5
+	glow.Color = Color3.fromRGB(180, 0, 0)
+	glow.Transparency = 0.35
+
+	button.MouseButton1Click:Connect(function()
+		pcall(function()
+			loadstring(game:HttpGet(url))()
+		end)
+	end)
+end
+
+-- ✅ Feature Buttons (with your updated links)
+createButton("Dark Spawner", "https://raw.githubusercontent.com/nedyxxx/gAgFluxionAI/refs/heads/main/darkspawner")
+createButton("Pet Mutation Finder", "https://raw.githubusercontent.com/nedyxxx/gAgFluxionAI/refs/heads/main/petmutation")
+createButton("SpeedhubX", "https://raw.githubusercontent.com/nedyxxx/gAgFluxionAI/refs/heads/main/speedhub")
+createButton("Project Reverse", "https://raw.githubusercontent.com/veryimportantrr/x/refs/heads/main/gag_visual.lua")
+createButton("Egg Randomizer", "https://raw.githubusercontent.com/sigbinhub/pet-changer-beta/refs/heads/main/loader.lua")
+createButton("Pet Leveler", "https://raw.githubusercontent.com/nedyxxx/gAgFluxionAI/refs/heads/main/petleveler")
