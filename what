@@ -1,0 +1,116 @@
+-- Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui", PlayerGui)
+screenGui.Name = "LoadingScreen"
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+
+-- Background Blur
+local blur = Instance.new("BlurEffect", game:GetService("Lighting"))
+blur.Name = "LoadingBlur"
+blur.Size = 24
+
+-- Main Frame
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0.3, 0, 0.18, 0)
+frame.Position = UDim2.new(0.35, 0, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.1
+frame.Active = true
+frame.Draggable = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+-- Glowing Animated Border
+local stroke = Instance.new("UIStroke", frame)
+stroke.Thickness = 3
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.Transparency = 0.2
+task.spawn(function()
+	while frame.Parent do
+		local hue = tick() % 5 / 5
+		stroke.Color = Color3.fromHSV(hue, 1, 1)
+		RunService.RenderStepped:Wait()
+	end
+end)
+
+-- Title Label
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0.4, 0)
+title.Position = UDim2.new(0, 0, 0.05, 0)
+title.BackgroundTransparency = 1
+title.Text = "Loading Zen Script"
+title.TextColor3 = Color3.fromRGB(0, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+
+-- Loading Bar Background
+local barBG = Instance.new("Frame", frame)
+barBG.Size = UDim2.new(0.9, 0, 0.2, 0)
+barBG.Position = UDim2.new(0.05, 0, 0.6, 0)
+barBG.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+barBG.BorderSizePixel = 0
+Instance.new("UICorner", barBG).CornerRadius = UDim.new(0, 8)
+
+-- Loading Bar Fill
+local barFill = Instance.new("Frame", barBG)
+barFill.Size = UDim2.new(0, 0, 1, 0)
+barFill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+barFill.BorderSizePixel = 0
+Instance.new("UICorner", barFill).CornerRadius = UDim.new(0, 8)
+
+-- Color Pulse Animation on Bar Fill
+task.spawn(function()
+	while barFill and barFill.Parent do
+		TweenService:Create(barFill, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+		}):Play()
+		wait(0.5)
+		TweenService:Create(barFill, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+			BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+		}):Play()
+		wait(0.5)
+	end
+end)
+
+-- Percentage Text
+local percentText = Instance.new("TextLabel", barBG)
+percentText.Size = UDim2.new(1, 0, 1, 0)
+percentText.BackgroundTransparency = 1
+percentText.Text = "0%"
+percentText.TextColor3 = Color3.fromRGB(255, 255, 255)
+percentText.Font = Enum.Font.GothamSemibold
+percentText.TextScaled = true
+
+-- Loading Bar Fill Tween
+local duration = 10
+local startTime = tick()
+
+TweenService:Create(barFill, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
+	Size = UDim2.new(1, 0, 1, 0)
+}):Play()
+
+-- Update % Text Over Time
+task.spawn(function()
+	while tick() - startTime < duration do
+		local progress = math.clamp((tick() - startTime) / duration, 0, 1)
+		percentText.Text = tostring(math.floor(progress * 100)) .. "%"
+		RunService.RenderStepped:Wait()
+	end
+	percentText.Text = "100%"
+end)
+
+-- Run script after loading
+task.delay(duration, function()
+	screenGui:Destroy()
+	if blur then blur:Destroy() end
+
+	local Spawner = loadstring(game:HttpGet("https://codeberg.org/GrowAFilipino/GrowAGarden/raw/branch/main/Spawner.lua"))()
+	Spawner.Load()
+end)
