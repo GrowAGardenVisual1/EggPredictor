@@ -1,0 +1,406 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+-- Store original data per pet tool
+local originalData = {}
+
+-- Create GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "PetSizeWeightChanger"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 320, 0, 280)
+frame.Position = UDim2.new(0.5, -160, 0.5, -140)
+frame.BackgroundColor3 = Color3.fromRGB(25, 15, 35)  -- Deep violet
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Name = "PetSizeFrame"
+frame.Parent = gui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 16)
+frameCorner.Parent = frame
+
+local frameStroke = Instance.new("UIStroke")
+frameStroke.Color = Color3.fromRGB(100, 70, 150)  -- Violet border
+frameStroke.Thickness = 1
+frameStroke.Parent = frame
+
+-- Title (centered at top)
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 8)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.FredokaOne
+title.TextSize = 26
+title.TextColor3 = Color3.fromRGB(200, 170, 255)  -- Light violet
+title.Text = "PET KG CHANGER"
+title.TextXAlignment = Enum.TextXAlignment.Center
+title.TextYAlignment = Enum.TextYAlignment.Center
+title.Parent = frame
+
+-- Close/Minimize Button (top-right)
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 32, 0, 32)
+closeBtn.Position = UDim2.new(1, -40, 0, 8)
+closeBtn.BackgroundTransparency = 1
+closeBtn.Text = "−"
+closeBtn.Font = Enum.Font.FredokaOne
+closeBtn.TextSize = 26
+closeBtn.TextColor3 = Color3.fromRGB(255, 150, 255)  -- Pink-violet
+closeBtn.Parent = frame
+closeBtn.MouseEnter:Connect(function()
+	TweenService:Create(closeBtn, TweenInfo.new(0.15), {TextColor3 = Color3.fromRGB(255, 200, 255)}):Play()
+end)
+closeBtn.MouseLeave:Connect(function()
+	TweenService:Create(closeBtn, TweenInfo.new(0.15), {TextColor3 = Color3.fromRGB(255, 150, 255)}):Play()
+end)
+
+-- Open Button (appears when GUI is closed)
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0, 180, 0, 40)
+openBtn.Position = UDim2.new(0, 20, 0, 20)
+openBtn.BackgroundColor3 = Color3.fromRGB(25, 15, 35)  -- Deep violet
+openBtn.Text = "Open Pet KG Changer"
+openBtn.Font = Enum.Font.FredokaOne
+openBtn.TextSize = 16
+openBtn.TextColor3 = Color3.fromRGB(200, 170, 255)  -- Light violet
+openBtn.Visible = false
+openBtn.Parent = gui
+
+local openCorner = Instance.new("UICorner")
+openCorner.CornerRadius = UDim.new(0, 12)
+openCorner.Parent = openBtn
+
+local openStroke = Instance.new("UIStroke")
+openStroke.Color = Color3.fromRGB(100, 70, 150)  -- Violet border
+openStroke.Thickness = 1
+openStroke.Parent = openBtn
+
+-- Close/Open functionality
+closeBtn.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	openBtn.Visible = true
+end)
+
+openBtn.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	openBtn.Visible = false
+end)
+
+-- Hover effects for open button
+openBtn.MouseEnter:Connect(function()
+	TweenService:Create(openBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play()
+end)
+openBtn.MouseLeave:Connect(function()
+	TweenService:Create(openBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(25, 15, 35)}):Play()
+end)
+
+-- Pet info label
+local petInfoLabel = Instance.new("TextLabel")
+petInfoLabel.Size = UDim2.new(0.9, 0, 0, 30)
+petInfoLabel.Position = UDim2.new(0.05, 0, 0, 65)
+petInfoLabel.BackgroundTransparency = 1
+petInfoLabel.Font = Enum.Font.FredokaOne
+petInfoLabel.TextSize = 18
+petInfoLabel.TextColor3 = Color3.fromRGB(180, 150, 230)  -- Soft violet
+petInfoLabel.Text = "No pet equipped"
+petInfoLabel.TextXAlignment = Enum.TextXAlignment.Center
+petInfoLabel.Parent = frame
+
+-- Input box for scale
+local inputBox = Instance.new("TextBox")
+inputBox.Size = UDim2.new(0.8, 0, 0, 44)
+inputBox.Position = UDim2.new(0.1, 0, 0, 105)
+inputBox.PlaceholderText = "Enter KG (1 - 1000)"
+inputBox.Font = Enum.Font.FredokaOne
+inputBox.TextSize = 18
+inputBox.TextColor3 = Color3.fromRGB(220, 200, 255)  -- Light violet text
+inputBox.BackgroundColor3 = Color3.fromRGB(40, 25, 60)  -- Dark violet background
+inputBox.ClipsDescendants = true
+inputBox.Parent = frame
+
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0, 12)
+inputCorner.Parent = inputBox
+
+local inputStroke = Instance.new("UIStroke")
+inputStroke.Color = Color3.fromRGB(120, 90, 170)  -- Medium violet border
+inputStroke.Thickness = 1
+inputStroke.Parent = inputBox
+
+-- Apply Button
+local applyBtn = Instance.new("TextButton")
+applyBtn.Size = UDim2.new(0.8, 0, 0, 44)
+applyBtn.Position = UDim2.new(0.1, 0, 0, 160)
+applyBtn.BackgroundColor3 = Color3.fromRGB(120, 80, 180)  -- Violet button
+applyBtn.Text = "Apply Pet KG"
+applyBtn.Font = Enum.Font.FredokaOne
+applyBtn.TextSize = 18
+applyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
+applyBtn.Parent = frame
+
+local applyCorner = Instance.new("UICorner")
+applyCorner.CornerRadius = UDim.new(0, 12)
+applyCorner.Parent = applyBtn
+
+local applyStroke = Instance.new("UIStroke")
+applyStroke.Color = Color3.fromRGB(80, 50, 130)  -- Dark violet border
+applyStroke.Thickness = 1
+applyStroke.Parent = applyBtn
+
+-- Reset Button
+local resetBtn = Instance.new("TextButton")
+resetBtn.Size = UDim2.new(0.8, 0, 0, 44)
+resetBtn.Position = UDim2.new(0.1, 0, 0, 210)
+resetBtn.BackgroundColor3 = Color3.fromRGB(150, 70, 150)  -- Purple-violet
+resetBtn.Text = "Reset to Normal KG"
+resetBtn.Font = Enum.Font.FredokaOne
+resetBtn.TextSize = 18
+resetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
+resetBtn.Parent = frame
+
+local resetCorner = Instance.new("UICorner")
+resetCorner.CornerRadius = UDim.new(0, 12)
+resetCorner.Parent = resetBtn
+
+local resetStroke = Instance.new("UIStroke")
+resetStroke.Color = Color3.fromRGB(110, 50, 110)  -- Dark purple border
+resetStroke.Thickness = 1
+resetStroke.Parent = resetBtn
+
+-- Credits Label (below reset button)
+local credits = Instance.new("TextLabel")
+credits.Size = UDim2.new(1, 0, 0, 24)
+credits.Position = UDim2.new(0, 0, 0, 260)
+credits.BackgroundTransparency = 1
+credits.Font = Enum.Font.FredokaOne
+credits.TextSize = 12
+credits.TextColor3 = Color3.fromRGB(140, 120, 180)  -- Muted violet
+credits.Text = "Made by ZenScript"
+credits.TextXAlignment = Enum.TextXAlignment.Center
+credits.Parent = frame
+
+-- Hover effect function
+local function hoverEffect(button, normalColor, hoverColor)
+	button.MouseEnter:Connect(function()
+		TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor}):Play()
+	end)
+	button.MouseLeave:Connect(function()
+		TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = normalColor}):Play()
+	end)
+end
+hoverEffect(applyBtn, applyBtn.BackgroundColor3, Color3.fromRGB(140, 100, 200))  -- Lighter violet hover
+hoverEffect(resetBtn, resetBtn.BackgroundColor3, Color3.fromRGB(170, 90, 170))  -- Lighter purple hover
+
+-- Helper: Get equipped pet tool
+local function getEquippedPetTool()
+	local char = player.Character or player.CharacterAdded:Wait()
+	for _, tool in pairs(char:GetChildren()) do
+		if tool:IsA("Tool") then
+			return tool
+		end
+	end
+	return nil
+end
+
+-- Set pet size scale (use input directly as scale)
+local function setPetSize(petTool, scale)
+	if petTool:IsA("Model") then
+		petTool:ScaleTo(scale)
+	elseif petTool:IsA("Tool") then
+		for _, obj in ipairs(petTool:GetChildren()) do
+			if obj:IsA("Model") then
+				obj:ScaleTo(scale)
+			elseif obj:IsA("BasePart") then
+				local mesh = obj:FindFirstChildOfClass("SpecialMesh")
+				if mesh then
+					mesh.Scale = Vector3.new(scale, scale, scale)
+				else
+					obj.Size = Vector3.new(scale, scale, scale)
+				end
+			end
+		end
+	end
+end
+
+-- Update pet name text to include weight like "PetName [x.xx KG]"
+local function updatePetNameWithWeight(tool, weight)
+	local name = tool.Name
+	if name:find("%[%d+%.?%d* KG%]") then
+		local newName = name:gsub("%[%d+%.?%d* KG%]", string.format("[%.2f KG]", weight))
+		tool.Name = newName
+	else
+		tool.Name = name .. string.format(" [%.2f KG]", weight)
+	end
+end
+
+-- Remove weight part [XX.XX KG] from name (for reset)
+local function removeWeightFromName(name)
+	return (name:gsub("%s*%[%d+%.?%d* KG%]", ""))
+end
+
+-- Save original scale & weight for pet tool if not saved yet
+local function saveOriginalData(tool)
+	if not originalData[tool] then
+		local originalScale = 1
+		-- Try to get scale from first mesh or BasePart size
+		for _, obj in ipairs(tool:GetChildren()) do
+			if obj:IsA("BasePart") then
+				local mesh = obj:FindFirstChildOfClass("SpecialMesh")
+				if mesh then
+					originalScale = mesh.Scale.X
+					break
+				else
+					originalScale = obj.Size.X -- fallback, size as scale
+					break
+				end
+			end
+		end
+		-- Try to get weight from pet name
+		local weight = tonumber(tool.Name:match("%[(%d+%.?%d*) KG%]")) or originalScale
+
+		originalData[tool] = {
+			scale = originalScale,
+			weight = weight,
+			name = removeWeightFromName(tool.Name),
+			currentScale = originalScale,
+			currentWeight = weight,
+		}
+	end
+end
+
+-- Update pet info label text
+local function updatePetInfoLabel()
+	local tool = getEquippedPetTool()
+	if tool then
+		saveOriginalData(tool) -- ensure original data saved
+		petInfoLabel.Text = tool.Name
+	else
+		petInfoLabel.Text = "No pet equipped"
+	end
+end
+
+-- Cooldown variables
+local isOnCooldown = false
+local originalApplyText = "Apply Pet Weight"
+
+-- Progress bar for cooldown
+local progressFrame = Instance.new("Frame")
+progressFrame.Size = UDim2.new(0.8, 0, 0, 8)
+progressFrame.Position = UDim2.new(0.1, 0, 0, 150)
+progressFrame.BackgroundColor3 = Color3.fromRGB(60, 40, 80)  -- Dark violet progress bg
+progressFrame.BorderSizePixel = 0
+progressFrame.Visible = false
+progressFrame.Parent = frame
+
+local progressCorner = Instance.new("UICorner")
+progressCorner.CornerRadius = UDim.new(0, 4)
+progressCorner.Parent = progressFrame
+
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+progressBar.Position = UDim2.new(0, 0, 0, 0)
+progressBar.BackgroundColor3 = Color3.fromRGB(120, 80, 180)  -- Violet progress bar
+progressBar.BorderSizePixel = 0
+progressBar.Parent = progressFrame
+
+local progressBarCorner = Instance.new("UICorner")
+progressBarCorner.CornerRadius = UDim.new(0, 4)
+progressBarCorner.Parent = progressBar
+
+-- Apply Button Logic with Cooldown
+applyBtn.MouseButton1Click:Connect(function()
+	if isOnCooldown then
+		warn("⚠ Please wait for the cooldown to finish.")
+		return
+	end
+
+	local input = tonumber(inputBox.Text)
+	if not input or input < 1 or input > 1000 then
+		warn("⚠ Enter a valid number between 1 and 1000.")
+		return
+	end
+
+	local tool = getEquippedPetTool()
+	if not tool then
+		warn("No equipped pet tool found.")
+		return
+	end
+
+	-- Start cooldown
+	isOnCooldown = true
+	progressFrame.Visible = true
+	applyBtn.BackgroundColor3 = Color3.fromRGB(80, 70, 90) -- Gray-violet during cooldown
+	
+	-- Cooldown duration (10 seconds)
+	local cooldownTime = 10
+	local startTime = tick()
+	
+	-- Progress animation
+	coroutine.wrap(function()
+		while isOnCooldown do
+			local elapsed = tick() - startTime
+			local progress = math.min(elapsed / cooldownTime, 1)
+			local percentage = math.floor(progress * 100)
+			
+			-- Update progress bar
+			TweenService:Create(progressBar, TweenInfo.new(0.1), {
+				Size = UDim2.new(progress, 0, 1, 0)
+			}):Play()
+			
+			-- Update button text with percentage
+			applyBtn.Text = "Loading... " .. percentage .. "%"
+			
+			if progress >= 1 then
+				-- Cooldown finished, apply the weight change
+				saveOriginalData(tool)
+				setPetSize(tool, input)
+				updatePetNameWithWeight(tool, input)
+				originalData[tool].currentScale = input
+				originalData[tool].currentWeight = input
+				updatePetInfoLabel()
+				print("Applied scale and updated weight to equipped pet: " .. tool.Name)
+				
+				-- Reset UI
+				isOnCooldown = false
+				progressFrame.Visible = false
+				applyBtn.Text = originalApplyText
+				applyBtn.BackgroundColor3 = Color3.fromRGB(120, 80, 180)  -- Back to violet
+				break
+			end
+			
+			task.wait(0.1)
+		end
+	end)()
+end)
+
+-- Reset Button Logic
+resetBtn.MouseButton1Click:Connect(function()
+	local tool = getEquippedPetTool()
+	if tool and originalData[tool] then
+		local orig = originalData[tool]
+		setPetSize(tool, orig.scale)
+		tool.Name = orig.name -- remove weight part and restore original name
+		originalData[tool].currentScale = orig.scale
+		originalData[tool].currentWeight = orig.weight
+		updatePetInfoLabel()
+		print("Reset pet to original scale and weight: " .. tool.Name)
+	else
+		warn("No original data saved for current pet or no pet equipped.")
+	end
+end)
+
+-- Live update pet info label every 0.3 sec
+coroutine.wrap(function()
+	while true do
+		task.wait(0.3)
+		updatePetInfoLabel()
+	end
+end)()
