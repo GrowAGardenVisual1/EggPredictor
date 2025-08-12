@@ -1,5 +1,4 @@
-
--- Visual pet hatch simulator with drag, ESP, auto random, pet age loader
+-- Visual pet hatch simulator with drag, ESP, auto random, pet age loader + GUI toggle button
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
@@ -15,7 +14,7 @@ local petTable = {
     ["Legendary Egg"] = { "Cow", "Polar Bear", "Sea Otter", "Turtle", "Silver Monkey" },
     ["Mythical Egg"] = { "Grey Mouse", "Brown Mouse", "Squirrel", "Red Giant Ant" },
     ["Bug Egg"] = { "Snail", "Caterpillar", "Giant Ant", "Praying Mantis" },
-    ["Night Egg"] = { "Frog", "Hedgehog", "Mole", "Echo Frog", "Night Owl", },
+    ["Night Egg"] = { "Frog", "Hedgehog", "Mole", "Echo Frog", "Night Owl" },
     ["Bee Egg"] = { "Bee", "Honey Bee", "Bear Bee", "Petal Bee" },
     ["Anti Bee Egg"] = { "Wasp", "Moth", "Tarantula Hawk" },
     ["Oasis Egg"] = { "Meerkat", "Sand Snake", "Axolotl" },
@@ -23,6 +22,7 @@ local petTable = {
     ["Dinosaur Egg"] = { "Raptor", "Triceratops", "Stegosaurus" },
     ["Primal Egg"] = { "Parasaurolophus", "Iguanodon", "Pachycephalosaurus" },
     ["Zen Egg"] = { "Shiba Inu", "Nihonzaru", "Tanuki" },
+    ["Gourmet Egg"] = { "Bagel Bunny", "Pancake Mole", "Sushi Bear" },
 }
 
 local espEnabled = true
@@ -147,7 +147,7 @@ local function flashEffect(button)
 end
 
 local function countdownAndRandomize(button)
-    for i = 10, 1, -1 do
+    for i = 3, 1, -1 do
         button.Text = "🎲 Randomize in: " .. i
         wait(1)
     end
@@ -248,8 +248,8 @@ autoBtn.TextColor3 = Color3.new(1, 1, 1)
 local autoRunning = false
 local bestPets = {
     ["Raccoon"] = true, ["Dragonfly"] = true, ["Queen Bee"] = true,
-    ["Disco Bee"] = true, ["Fennec Fox"] = true, ["Fox"] = true,
-    ["Mimic Octopus"] = true, ["Kitsune"] = true
+    ["Disco Bee"] = true, ["Fennec Fox"] = true, ["Red Fox"] = true,
+    ["Mimic Octopus"] = true, ["Kitsune"] = true, ["French Fry Ferret"] = true 
 }
 
 autoBtn.MouseButton1Click:Connect(function()
@@ -279,3 +279,21 @@ credit.Text = "Made by - Zen"
 credit.Font = Enum.Font.FredokaOne
 credit.TextSize = 14
 credit.TextColor3 = Color3.fromRGB(200, 200, 200)
+
+-- 🔘 GUI Toggle Button
+local toggleGuiBtn = Instance.new("TextButton", screenGui)
+toggleGuiBtn.Size = UDim2.new(0, 40, 0, 40)
+toggleGuiBtn.Position = UDim2.new(0, 10, 0, 60)
+toggleGuiBtn.BackgroundColor3 = Color3.fromRGB(80, 150, 250)
+toggleGuiBtn.Text = "📂"
+toggleGuiBtn.TextSize = 20
+toggleGuiBtn.Font = Enum.Font.FredokaOne
+toggleGuiBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", toggleGuiBtn).CornerRadius = UDim.new(1, 0)
+
+local guiVisible = true
+toggleGuiBtn.MouseButton1Click:Connect(function()
+    guiVisible = not guiVisible
+    frame.Visible = guiVisible
+    toggleGuiBtn.Text = guiVisible and "📂" or "📁"
+end)
